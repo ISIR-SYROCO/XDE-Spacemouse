@@ -29,33 +29,46 @@ class SpaceMouse(dsimi.rtt.Task):
 		self.D1 = D1
 		self.D2 = D2
 
-		self.pdc = phy.s.GVM.CartesianPDCoupling.new("pdc")
-		self.pdc.setCoupledRigidBody(body_name)
-		self.setPDCGain(P1, P2, D1, D2)
-
 		self.body = None
-		self.setBody(body_name)
-
-		ms = phy.s.GVM.Scene("main")
-		ms.addCartesianPDCoupling(self.pdc)
-		#1 is for Twist port creation
-		phy.s.Connectors.IConnectorPDCoupling.new("icis", "sm_vel", "pdc", 1)
-		self.pdc.setMaxAngularVelocity(0.31415)
-		self.pdc.setMaxLinearVelocity(0.5)
-
-		phy.getPort("sm_vel").connectTo(self.vel_out)
+		self.createConnector(body_name)
 
 		self.camera = lgsm.Displacement()
 
 	def setPDCGain(self, P1, P2, D1, D2):
-			self.pdc.setGainsP(P1, P2)
-			self.pdc.setGainsD(D1, D2)
+		self.pdc.setGainsP(P1, P2)
+		self.pdc.setGainsD(D1, D2)
 
 	def setBody(self, body_name):
 		if self.body is not None:
 			self.body.enableWeight()
+
+		self.pdc.disable()
+		ms = self.phy.s.GVM.Scene("main")
+		ms.removeCartesianPDCoupling("pdc")
+		self.phy.s.Connectors.delete("icis")
+		self.phy.s.deleteComponent("pdc")
+
+		self.createConnector(body_name)
+
+	def createConnector(self, body_name):
+		self.pdc = self.phy.s.GVM.CartesianPDCoupling.new("pdc")
+		self.pdc.setCoupledRigidBody(body_name)
+		ms = self.phy.s.GVM.Scene("main")
+		ms.addCartesianPDCoupling(self.pdc)
+
+		#1 is for Twist port creation
+		self.phy.s.Connectors.IConnectorPDCoupling.new("icis", "sm_vel", "pdc", 1)
+		self.pdc.setMaxAngularVelocity(0.31415)
+		self.pdc.setMaxLinearVelocity(0.5)
+		self.setPDCGain(self.P1, self.P2, self.D1, self.D2)
+
+		self.phy.getPort("sm_vel").connectTo(self.vel_out)
+
 		self.body = self.phy.s.GVM.RigidBody(body_name)
 		self.body.disableWeight()
+
+	def cleanConnector():
+		self.phy.s.Connectors.delete("icis")
 
 	def startHook(self):
 		self.smf.s.start()
