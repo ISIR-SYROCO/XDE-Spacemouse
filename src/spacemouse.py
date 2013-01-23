@@ -93,14 +93,15 @@ class SpaceMouse(dsimi.rtt.Task):
 			H_b_c.setTranslation(lgsm.vector([0,0,0]))
 
 			sm_vel = H_b_c.adjoint() * sm_vel
-			self.vel_out.write(sm_vel)
-			#self.body.setVelocity(sm_vel)
+			#sm_vel.setAngularVelocity(lgsm.vector([0,0,0]))
+			#self.vel_out.write(sm_vel)
+			self.body.setVelocity(sm_vel)
 		else:
-			self.vel_out.write(lgsm.Twist())
-			#self.body.setVelocity(lgsm.Twist())
+			#self.vel_out.write(lgsm.Twist())
+			self.body.setVelocity(lgsm.Twist())
 
 
-def createTask(name, time_step, phy, graph, body_name, P1=0, P2=0, D1=2, D2=2):
+def createTask(name, time_step, phy, graph, body_name, P1=0, P2=0, D1=1, D2=2):
 	sm = SpaceMouse(name, time_step, phy, graph, body_name, P1, P2, D1, D2)
 	setProxy(sm)
 	return sm
