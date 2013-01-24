@@ -22,6 +22,30 @@ class SimpleController(dsimi.rtt.Task):
 
 		self.s.setPeriod(time_step)
 
+	def connectToRobot(self, phy, world, robot_name):
+		self.model = physicshelper.createDynamicModel(world, robot_name)
+		#create connectors to get robot k1g state 'k1g_q', 'k1g_qdot', 'k1g_Hroot', 'k1g_Troot', 'k1g_H'
+		phy.s.Connectors.OConnectorRobotState.new("ocpos"+robot_name, robot_name+"_", robot_name)
+		phy.s.Connectors.IConnectorRobotJointTorque.new("ict"+robot_name, robot_name+"_", robot_name)
+
+		phy.getPort(robot_name+"_q").connectTo(self.getPort("q"))
+		phy.getPort(robot_name+"_qdot").connectTo(self.getPort("qdot"))
+		phy.getPort(robot_name+"_Troot").connectTo(self.getPort("t"))
+		phy.getPort(robot_name+"_Hroot").connectTo(self.getPort("d"))
+		self.getPort("tau").connectTo(phy.getPort(robot_name+"_tau"))
+
+	def disconnectRobot(self, phy, robot_name):
+
+		robot = phy.s.GVM.Robot(robot_name)
+		ndof = robot.getJointSpaceDim()
+		tau = lgsm.vector([0] * ndof)
+		self.tau_port.write(tau)
+
+		robot.setJointVelocities(np.array([0.0]*ndof).reshape(ndof,1))
+
+		phy.s.Connectors.delete("ict"+robot_name)
+		phy.s.Connectors.delete("ocpos"+robot_name)
+
 	def startHook(self):
 		pass
 
@@ -58,10 +82,8 @@ def createTask(name, time_step):
 	setProxy(controller)
 	return controller
 
-def createDynamicModel(world, robotName):
-	controller.model = physicshelper.createDynamicModel(world, robotName)
-
 def setProxy(_controller):
 	global controller
 	controller=_controller
+
 
