@@ -7,7 +7,7 @@ import lgsm
 sm = None
 
 class SpaceMouse(dsimi.rtt.Task):
-	def __init__(self, name, time_step, phy, graph, body_name, P1, P2, D1, D2):
+	def __init__(self, name, time_step, phy, graph, body_name, pdc_enabled, P1, P2, D1, D2):
 		super(SpaceMouse, self).__init__(rtt_interface.PyTaskFactory.CreateTask(name))
 
 		self.s.setPeriod(time_step)
@@ -21,18 +21,24 @@ class SpaceMouse(dsimi.rtt.Task):
 
 		self.sm_in_port = self.addCreateInputPort("sm_in", "Twistd", True)
 		self.sm_in_port.connectTo(self.sm.getPort("out_vel"))
-		self.sm_obs_in_port = self.sm.getPort("obs_frame")
+		#self.sm_obs_in_port = self.sm.getPort("obs_frame")
 		self.vel_out = self.addCreateOutputPort("vel_out", "Twistd")
 
-		self.P1 = P1
-		self.P2 = P2
-		self.D1 = D1
-		self.D2 = D2
-
 		self.body = None
-		self.createConnector(body_name)
+		self.body = self.phy.s.GVM.RigidBody(body_name)
+		self.body.disableWeight()
+		self.pdc_enabled = pdc_enabled
+
+		if self.pdc_enabled == True:
+			self.P1 = P1
+			self.P2 = P2
+			self.D1 = D1
+			self.D2 = D2
+
+			self.createConnector(body_name)
 
 		self.camera = lgsm.Displacement()
+
 
 	def setPDCGain(self, P1, P2, D1, D2):
 		self.pdc.setGainsP(P1, P2)
@@ -42,13 +48,9 @@ class SpaceMouse(dsimi.rtt.Task):
 		if self.body is not None:
 			self.body.enableWeight()
 
-		self.pdc.disable()
-		ms = self.phy.s.GVM.Scene("main")
-		ms.removeCartesianPDCoupling("pdc")
-		self.phy.s.Connectors.delete("icis")
-		self.phy.s.deleteComponent("pdc")
-
-		self.createConnector(body_name)
+		if self.pdc_enabled == True:
+			self.cleanConnector()
+			self.createConnector(body_name)
 
 	def createConnector(self, body_name):
 		self.pdc = self.phy.s.GVM.CartesianPDCoupling.new("pdc")
@@ -64,11 +66,12 @@ class SpaceMouse(dsimi.rtt.Task):
 
 		self.phy.getPort("sm_vel").connectTo(self.vel_out)
 
-		self.body = self.phy.s.GVM.RigidBody(body_name)
-		self.body.disableWeight()
-
-	def cleanConnector():
+	def cleanConnector(self):
+		self.pdc.disable()
+		ms = self.phy.s.GVM.Scene("main")
+		ms.removeCartesianPDCoupling("pdc")
 		self.phy.s.Connectors.delete("icis")
+		self.phy.s.deleteComponent("pdc")
 
 	def startHook(self):
 		self.smf.s.start()
@@ -93,16 +96,21 @@ class SpaceMouse(dsimi.rtt.Task):
 			H_b_c.setTranslation(lgsm.vector([0,0,0]))
 
 			sm_vel = H_b_c.adjoint() * sm_vel
-			#sm_vel.setAngularVelocity(lgsm.vector([0,0,0]))
-			#self.vel_out.write(sm_vel)
-			self.body.setVelocity(sm_vel)
+			if self.pdc_enabled == True:
+				#TODO Frame orientation problem
+				sm_vel.setAngularVelocity(lgsm.vector([0,0,0]))
+				self.vel_out.write(sm_vel)
+			else:
+				self.body.setVelocity(sm_vel)
 		else:
-			#self.vel_out.write(lgsm.Twist())
-			self.body.setVelocity(lgsm.Twist())
+			if self.pdc_enabled == True:
+				self.vel_out.write(lgsm.Twist())
+			else:
+				self.body.setVelocity(lgsm.Twist())
 
 
-def createTask(name, time_step, phy, graph, body_name, P1=0, P2=0, D1=1, D2=2):
-	sm = SpaceMouse(name, time_step, phy, graph, body_name, P1, P2, D1, D2)
+def createTask(name, time_step, phy, graph, body_name, pdc_enabled=False, P1=0, P2=0, D1=3, D2=3):
+	sm = SpaceMouse(name, time_step, phy, graph, body_name, pdc_enabled, P1, P2, D1, D2)
 	setProxy(sm)
 	return sm
 

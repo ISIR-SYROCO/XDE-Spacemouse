@@ -64,7 +64,7 @@ kuka.enableContactWithBody("spheresphere", True)
 
 controller.s.start()
 
-sm = spacemouse.createTask("smi", TIME_STEP, phy, graph, "spheresphere")
+sm = spacemouse.createTask("smi", TIME_STEP, phy, graph, "spheresphere", pdc_enabled=False)
 
 sm.s.start()
 
