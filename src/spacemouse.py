@@ -21,7 +21,6 @@ class SpaceMouse(dsimi.rtt.Task):
 
 		self.sm_in_port = self.addCreateInputPort("sm_in", "Twistd", True)
 		self.sm_in_port.connectTo(self.sm.getPort("out_vel"))
-		#self.sm_obs_in_port = self.sm.getPort("obs_frame")
 		self.vel_out = self.addCreateOutputPort("vel_out", "Twistd")
 
 		self.cursor = None
@@ -42,15 +41,25 @@ class SpaceMouse(dsimi.rtt.Task):
 
 
 	def setPDCGain(self, PR, PT, DR, DT):
+		"""
+		Set the gain for the PDCoupling
+		"""
 		self.pdc.setGainsP(PR, PT)
 		self.pdc.setGainsD(DR, DT)
 
 	def setBody(self, body_name):
+		"""
+		Set the body named to be attached to the PDC
+		"""
 		if self.pdc_enabled == True:
 			self.cleanPDC()
 			self.createPDC(body_name)
 
 	def createPDC(self, body_name):
+		"""
+		Create the PDC, attach the body 'body_name' to the origin of the virtual spring
+		and enable PDC Control mode
+		"""
 		self.pdc = self.phy.s.GVM.CartesianPDCoupling.new("sm_pdc")
 		self.pdc.setCoupledRigidBody(body_name)
 		ms = self.phy.s.GVM.Scene("main")
@@ -62,6 +71,9 @@ class SpaceMouse(dsimi.rtt.Task):
 		self.pdc_enabled = True
 
 	def cleanPDC(self):
+		"""
+		Remove properly the PDC (for example when changing body)
+		"""
 		self.pdc_enabled = False
 		self.pdc.disable()
 		ms = self.phy.s.GVM.Scene("main")
