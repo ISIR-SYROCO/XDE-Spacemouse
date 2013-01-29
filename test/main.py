@@ -35,7 +35,6 @@ import lgsm
 
 
 sphereWorld = xrl.createWorldFromUrdfFile("resources/urdf/sphere.xml", "sphere", [0,0.6,1.2, 1, 0, 0, 0], False, 0.2, 0.005)# , "material.concrete")
-#knobWorld = xrl.createWorldFromUrdfFile("resources/urdf/knob.xml", "knob", [0,0,-0.4, 1, 0, 0, 0], False, 0.2, 0.05)# , "material.concrete")
 kukaWorld = xrl.createWorldFromUrdfFile("resources/urdf/kuka.xml", "k1g", [0,0,0.4, 1, 0, 0, 0], True, 1, 0.005) #, "material.concrete")
 
 xwm.addMarkers(sphereWorld, ["spheresphere"], thin_markers=False)
@@ -43,10 +42,12 @@ xwm.addWorld(sphereWorld, True)
 xwm.addWorld(kukaWorld, True)
 
 
+# Create simple gravity compensator controller
 import control
 controller = control.createTask("controlK1G", TIME_STEP)
 controller.connectToRobot(phy, kukaWorld, "k1g")
 
+# Configure the robot
 import numpy as np
 kuka = phy.s.GVM.Robot("k1g")
 kuka.enableGravity(True)
@@ -57,19 +58,15 @@ kuka.setJointVelocities(np.array([0.0]*7).reshape(7,1))
 
 controller.s.start()
 
+#PDC Control mode
 #sm = spacemouse.createTask("smi", TIME_STEP, phy, graph, "spheresphere", pdc_enabled=True, body_name="07k1g")
-sm = spacemouse.createTask("smi", TIME_STEP, phy, graph, "spheresphere", pdc_enabled=False)
 
-ocos=graph.s.Connectors.OConnectorObs.new("ocobs", "obs", "mainScene")
-def connect():
-	graph.getPort("obs").connectTo(sm.sm.getPort("obs_frame"))
-def disconnect():
-    graph.getPort("obs").disconnect()
+# Normal mode
+sm = spacemouse.createTask("smi", TIME_STEP, phy, graph, "spheresphere", pdc_enabled=False)
 
 sm.s.start()
 
 phy.s.startSimulation()
-
 
 shell()
 
