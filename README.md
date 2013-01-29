@@ -17,3 +17,11 @@ Create a symlink to `./XDE-Spacemouse/src` in `prefix` directory:
 
 `python setup.py develop [--prefix=PREFIX] [--uninstall]`
 
+Control modes:
+-------
+
+This module provides two control modes:
+ - Normal Mode: the spacemouse control a cursor
+ - PDC Mode: a body is attached to the cursor with a PD Coupling
+
+
