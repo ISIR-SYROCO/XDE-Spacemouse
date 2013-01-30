@@ -21,7 +21,7 @@ class SpaceMouse(dsimi.rtt.Task):
 
 		self.sm_in_port = self.addCreateInputPort("sm_in", "Twistd", True)
 		self.sm_in_port.connectTo(self.sm.getPort("out_vel"))
-		self.vel_out = self.addCreateOutputPort("vel_out", "Twistd")
+		self.pos_out = self.addCreateOutputPort("pos_out", "Displacementd")
 
 		self.cursor = None
 		self.cursor = self.phy.s.GVM.RigidBody(cursor_name)
@@ -85,10 +85,10 @@ class SpaceMouse(dsimi.rtt.Task):
 		self.sm.s.start()
 
 	def stopHook(self):
-		pass
+		self.sm.s.stop()
+		self.smf.s.stop()
 
 	def updateHook(self):
-
  	 	sm_vel, sm_vel_ok = self.sm_in_port.read()
 
 		#Hack
@@ -101,7 +101,6 @@ class SpaceMouse(dsimi.rtt.Task):
 		H_b_c = H_b_0 * H_0_c
 		H_b_c.setTranslation(lgsm.vector([0,0,0]))
 
-
 		if self.pdc_enabled:
 			if "sm_pdc" in self.phy.s.getComponents():
 				self.pdc.setDesiredPosition(H_0_b, H_0_b)
@@ -113,6 +112,8 @@ class SpaceMouse(dsimi.rtt.Task):
 
 		else:
 			self.cursor.setVelocity(lgsm.Twist())
+
+		self.pos_out.write(self.cursor.getPosition())
 
 
 def createTask(name, time_step, phy, graph, cursor_name, pdc_enabled=False, body_name=None, PR=30, PT=30, DR=30, DT=30):
