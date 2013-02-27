@@ -19,7 +19,7 @@ class SpaceMouse(dsimi.rtt.Task):
 		self.phy = phy
 		self.camera_interface = graph.s.Interface.CameraInterface("mainScene")
 
-		self.sm_in_port = self.addCreateInputPort("sm_in", "Twistd", True)
+		self.sm_in_port = self.addCreateInputPort("sm_in", "Twistd" )
 		self.sm_in_port.connectTo(self.sm.getPort("out_vel"))
 		self.pos_out = self.addCreateOutputPort("pos_out", "Displacementd")
 
