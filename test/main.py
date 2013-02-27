@@ -38,8 +38,8 @@ sphereWorld = xrl.createWorldFromUrdfFile(xr.sphere, "sphere", [0,0.6,1.2, 1, 0,
 kukaWorld = xrl.createWorldFromUrdfFile(xr.kuka, "k1g", [0,0,0.4, 1, 0, 0, 0], True, 1, 0.005) #, "material.concrete")
 
 wm.addMarkers(sphereWorld, ["sphere.sphere"], thin_markers=False)
-wm.addWorld(sphereWorld, True)
-wm.addWorld(kukaWorld, True)
+wm.addWorld(sphereWorld )
+wm.addWorld(kukaWorld)
 
 
 # Create simple gravity compensator controller
@@ -66,7 +66,7 @@ sm = spacemouse.createTask("smi", TIME_STEP, wm.phy, wm.graph, "sphere.sphere", 
 
 sm.s.start()
 
-wm.startSimulation()
+wm.startAgents()
 
 shell()
 
