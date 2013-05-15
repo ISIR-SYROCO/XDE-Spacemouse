@@ -10,27 +10,27 @@ import lgsm
 sm = None
 
 class SpaceMouse(dsimi.rtt.Task):
-	""" Orocos task that gathers the components to use the spacemouse.
+	""" Orocos task that gathers the components to use the spacemouse: load driver, open device and configure.
 	Two control mode are available: Normal and PDC.
 	In Normal mode, the spacemouse control a cursor.
 	In PDC mode, the user attach a body to the cursor with a PD coupling so that
 	the body is attracted to the cursor.
 	In both case the cursor is controlled in the camera frame.
+
+	:param name: name of the Orocos task that will be associated to this task
+	:param time_step: period of the Orocos task
+	:param phy: the main physic agent
+	:param graph: the main graphic agent
+	:param cursor_name: name of the body that will represent the cursor
+	:param pdc_enabled: set to True to enable PDC mode, False to enable Normal mode
+	:param body_name: name of the body to be attached to the cursor in PDC mode
+	:param PR: P parameter for rotation of the PD Coupling (PDC mode)
+	:param PT: P parameter for translation of the PD Coupling (PDC mode)
+	:param DR: D parameter for rotation of the PD Coupling (PDC mode)
+	:param DT: D parameter for translation of the PD Coupling (PDC mode)
 	"""
 	def __init__(self, name, time_step, phy, graph, cursor_name, pdc_enabled, body_name, PR, PT, DR, DT):
-		""" Instantiate SpaceMouse: load driver, open device and configure.
-
-		:param name: name of the Orocos task that will be associated to this task
-		:param time_step: period of the Orocos task
-		:param phy: the main physic agent
-		:param graph: the main graphic agent
-		:param cursor_name: name of the body that will represent the cursor
-		:param pdc_enabled: set to True to enable PDC mode, False to enable Normal mode
-		:param body_name: name of the body to be attached to the cursor in PDC mode
-		:param PR: P parameter for rotation of the PD Coupling (PDC mode)
-		:param PT: P parameter for translation of the PD Coupling (PDC mode)
-		:param DR: D parameter for rotation of the PD Coupling (PDC mode)
-		:param DT: D parameter for translation of the PD Coupling (PDC mode)
+		"""
 		"""
 		super(SpaceMouse, self).__init__(rtt_interface.PyTaskFactory.CreateTask(name))
 
@@ -158,12 +158,12 @@ def createTask(name, time_step, phy, graph, cursor_name, pdc_enabled=False, body
 	:param phy: the main physic agent
 	:param graph: the main graphic agent
 	:param cursor_name: name of the body that will represent the cursor
-	:param pdc_enabled: (False) set to True to enable PDC mode, False to enable Normal mode
-	:param body_name: (None) name of the body to be attached to the cursor in PDC mode
-	:param PR: (30) P parameter for rotation of the PD Coupling (PDC mode)
-	:param PT: (30) P parameter for translation of the PD Coupling (PDC mode)
-	:param DR: (30) D parameter for rotation of the PD Coupling (PDC mode)
-	:param DT: (30) D parameter for translation of the PD Coupling (PDC mode)
+	:param pdc_enabled: set to True to enable PDC mode, False to enable Normal mode
+	:param body_name: name of the body to be attached to the cursor in PDC mode
+	:param PR: P parameter for rotation of the PD Coupling (PDC mode)
+	:param PT: P parameter for translation of the PD Coupling (PDC mode)
+	:param DR: D parameter for rotation of the PD Coupling (PDC mode)
+	:param DT: D parameter for translation of the PD Coupling (PDC mode)
 	"""
 	sm = SpaceMouse(name, time_step, phy, graph, cursor_name, pdc_enabled, body_name, PR, PT, DR, DT)
 	setProxy(sm)
