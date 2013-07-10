@@ -27,6 +27,5 @@ Documentation:
 --------------
 To build documentation:
 
-`LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$XDE_PATH:$XDE_PATH/types make doc`
+`runxde.sh setup.py build_doc [--build-dir=BUILD_DIR] [-b TARGET_BUILD]`
 
-where `$XDE_PATH` is the path where you extracted the XDE binaries
