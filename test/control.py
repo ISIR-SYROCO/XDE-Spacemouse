@@ -1,12 +1,13 @@
 import lgsm
 import rtt_interface
-import dsimi.rtt
+import xdefw.rtt
 import numpy as np
 import physicshelper
+import xde.desc.physic
 
 controller = None
 
-class SimpleController(dsimi.rtt.Task):
+class SimpleController(xdefw.rtt.Task):
 	def __init__(self, name, time_step):
 		super(SimpleController, self).__init__(rtt_interface.PyTaskFactory.CreateTask(name))
 
@@ -23,7 +24,13 @@ class SimpleController(dsimi.rtt.Task):
 		self.s.setPeriod(time_step)
 
 	def connectToRobot(self, phy, world, robot_name):
-		self.model = physicshelper.createDynamicModel(world, robot_name)
+		multiBodyModel = xde.desc.physic.physic_pb2.MultiBodyModel()
+		multiBodyModel.kinematic_tree.CopyFrom(world.scene.physical_scene.nodes[0])
+		multiBodyModel.meshes.extend(world.library.meshes)
+		multiBodyModel.mechanism.CopyFrom(world.scene.physical_scene.mechanisms[0])
+		multiBodyModel.composites.extend(world.scene.physical_scene.collision_scene.meshes)
+
+		self.model = physicshelper.createDynamicModel(multiBodyModel)
 		#create connectors to get robot k1g state 'k1g_q', 'k1g_qdot', 'k1g_Hroot', 'k1g_Troot', 'k1g_H'
 		phy.s.Connectors.OConnectorRobotState.new("ocpos"+robot_name, robot_name+"_", robot_name)
 		phy.s.Connectors.IConnectorRobotJointTorque.new("ict"+robot_name, robot_name+"_", robot_name)

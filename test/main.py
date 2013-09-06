@@ -7,8 +7,8 @@
 ####################################
 import xde_world_manager as xwm
 
-import dsimi.interactive
-shell = dsimi.interactive.shell()
+import xdefw.interactive
+shell = xdefw.interactive.shell_console()
 
 import rtt_interface
 rtt_interface.Logger_Instance().setLogLevel(rtt_interface.Logger.Error)

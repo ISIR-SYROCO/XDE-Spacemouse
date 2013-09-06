@@ -1,7 +1,7 @@
 """ This module abstract the instantiation and configuration of the spacemouse.
 """
 
-import dsimi.rtt
+import xdefw.rtt
 import rtt_interface
 import deploy.deployer as ddeployer
 
@@ -9,7 +9,7 @@ import lgsm
 
 sm = None
 
-class SpaceMouse(dsimi.rtt.Task):
+class SpaceMouse(xdefw.rtt.Task):
 	""" Orocos task that gathers the components to use the spacemouse: load driver, open device and configure.
 	Two control mode are available: Normal and PDC.
 	In Normal mode, the spacemouse control a cursor.
@@ -35,10 +35,10 @@ class SpaceMouse(dsimi.rtt.Task):
 		super(SpaceMouse, self).__init__(rtt_interface.PyTaskFactory.CreateTask(name))
 
 		self.s.setPeriod(time_step)
-		self.smf = dsimi.rtt.Task(ddeployer.load("smf", "dio::SpaceMouseFactory", "dio-hw-spacemouse", "dio/factory/"))
+		self.smf = xdefw.rtt.Task(ddeployer.load("smf", "dio::SpaceMouseFactory", "dio-hw-spacemouse", "dio/factory/"))
 		self.smf.s.setPeriod(time_step)
 		self.device = self.smf.s.scan()
-		self.sm = dsimi.rtt.Task(self.smf.s.build(self.device[0], 'smf'))
+		self.sm = xdefw.rtt.Task(self.smf.s.build(self.device[0], 'smf'))
 		self.sm.s.setPeriod(time_step)
 		self.phy = phy
 		self.camera_interface = graph.s.Interface.CameraInterface("mainScene")
@@ -73,8 +73,8 @@ class SpaceMouse(dsimi.rtt.Task):
 		:param DR: D parameter for rotation of the PD Coupling (PDC mode)
 		:param DT: D parameter for translation of the PD Coupling (PDC mode)
 		"""
-		self.pdc.setGainsP(PR, PT)
-		self.pdc.setGainsD(DR, DT)
+		self.pdc.setGainsP1(PR, PT)
+		self.pdc.setGainsD1(DR, DT)
 
 	def setBody(self, body_name):
 		"""
@@ -125,7 +125,7 @@ class SpaceMouse(dsimi.rtt.Task):
  	 	sm_vel, sm_vel_ok = self.sm_in_port.read()
 
 		#Hack
-		self.camera = self.camera_interface.getCameraDisplacementInPhysicSpace("mainViewportBaseCamera")
+		self.camera = self.camera_interface.getCameraDisplacement("mainViewportBaseCamera")
 
 		H_0_c = self.camera
 		H_0_b = self.cursor.getPosition()
