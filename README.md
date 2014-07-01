@@ -29,3 +29,20 @@ To build documentation:
 
 `runxde.sh setup.py build_doc [--build-dir=BUILD_DIR] [-b TARGET_BUILD]`
 
+USB permission:
+---------------
+In order to use the spacemouse, you need some permission to read the usb port:
+
+First create a usb group:
+
+`sudo groupadd usb`
+                              
+Add yourself in it:
+
+`sudo usermod -a -G usb myusername`
+
+Add the file /etc/udev/rules.d/usb-permission.rules containing:
+
+`SUBSYSTEM=="usb", GROUP=="usb"`
+
+
